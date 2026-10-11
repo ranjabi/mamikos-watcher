@@ -1,4 +1,4 @@
-.PHONY: help test test-integration fmt fmt-fix vet check
+.PHONY: help test test-integration fmt fmt-fix vet check run-once
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  %-18s %s\n", $$1, $$2}'
@@ -19,3 +19,7 @@ vet: ## Run go vet
 	go vet ./...
 
 check: fmt vet test ## Run fmt, vet and unit tests
+
+run-once: ## Check every URL in .env one time and exit
+	@test -f .env || { echo ".env not found (run: cp .env.example .env)"; exit 1; }
+	set -a && . ./.env && set +a && go run ./cmd/watcher -once
