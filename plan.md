@@ -26,7 +26,7 @@ Check order: penuh → tersisa → banyak → unknown. Match case-insensitively 
 cmd/watcher/main.go          # load config, start scheduler, graceful shutdown (SIGINT/SIGTERM)
 internal/config/config.go    # env parsing + validation
 internal/fetcher/fetcher.go  # Fetcher interface; HTTP impl with timeout + User-Agent header, returns body text
-internal/parser/parser.go    # Parse(html) -> Result{Title, Status, Rooms}
+internal/parser/parser.go    # Parse(html) -> Result{Title, Status, Rooms, StatusText}
 internal/parser/parser_test.go  # table tests: 3 example phrases + unknown, title extraction + fallback
 internal/watcher/watcher.go  # RunOnce: fetch + parse each URL, write run logs
 Dockerfile                   # multi-stage, distroless/alpine final
@@ -42,7 +42,7 @@ Scheduler: stdlib `time.Ticker` (run once on start, then every interval) — sim
 - `check` — **one line per property URL**: the result for that single page (url, status, rooms, duration, error if any)
 - `run_complete` — **one line per run**, after all URLs are checked: a report listing each property as a **title → rent status** pair, plus total duration. Lets you scan the whole run at a glance.
 
-Rent status values: `full`, `2 rooms left` (from "Tersisa N kamar"), `many rooms` (from "Banyak pilihan kamar untukmu"), `unknown`, `error`.
+Rent status: the exact text as shown on the page (the matched phrase, e.g. `Kamar penuh`, `Tersisa 2 kamar`, `Banyak pilihan kamar untukmu`), not rephrased. If no phrase matches, `unknown`; if the fetch fails, `error`.
 
 Property title: parsed from the page (`<h1>`, falling back to `og:title` / `<title>`); if it can't be found, use the URL.
 
@@ -52,9 +52,9 @@ Example run with 3 URLs → 3 `check` lines + 1 `run_complete`:
 {"time":"…10:00:01","level":"INFO","msg":"check","url":"…/kost-b","title":"Kost Anggrek Setiabudi","status":"available","rooms":2,"duration_ms":640}
 {"time":"…10:00:02","level":"INFO","msg":"check","url":"…/kost-c","title":"Kost Mawar Kuningan","status":"available","rooms":-1,"duration_ms":701}
 {"time":"…10:00:02","level":"INFO","msg":"run_complete","duration_ms":2153,"report":[
-  {"title":"Kost Melati Tipe A Tebet","status":"full"},
-  {"title":"Kost Anggrek Setiabudi","status":"2 rooms left"},
-  {"title":"Kost Mawar Kuningan","status":"many rooms"}]}
+  {"title":"Kost Melati Tipe A Tebet","status":"Kamar penuh"},
+  {"title":"Kost Anggrek Setiabudi","status":"Tersisa 2 kamar"},
+  {"title":"Kost Mawar Kuningan","status":"Banyak pilihan kamar untukmu"}]}
 ```
 (Shown wrapped for readability; actual output is one JSON line.)
 
