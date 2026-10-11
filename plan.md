@@ -61,6 +61,11 @@ Example run with 3 URLs → 3 `check` lines + 1 `run_complete`:
 ## Risk to verify first
 Mamikos may render availability client-side (Vue). Step 1 is to `curl` a real property URL and confirm the phrases appear in raw HTML. If not, fall back to a headless browser (`chromedp`) in the fetcher — parser/watcher stay unchanged behind the `Fetcher` interface.
 
+## Workflow
+- TDD: write a failing test first, then implement until it passes, then refactor.
+- Each iteration = one TODO step = working code + passing tests (`go test ./...`) = one commit.
+- After each iteration, stop and ask whether to commit or do something else.
+
 ## TODO.md content (actionable steps)
 1. [ ] Verify raw HTML of a sample property contains the availability phrases (curl)
 2. [ ] `go mod init`, layout, `.gitignore`, `.env.example`
