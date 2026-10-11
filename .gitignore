@@ -1,0 +1,17 @@
+# Binaries
+/watcher
+/bin/
+*.exe
+
+# Test output
+*.test
+*.out
+coverage.*
+
+# Local env
+.env
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
